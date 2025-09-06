@@ -52,13 +52,16 @@ export const insertUserPreferencesSchema = createInsertSchema(userPreferences).o
 export const newsFiltersSchema = z.object({
   country: z.string().optional(),
   category: z.string().optional(),
-  sources: z.array(z.string()).optional(),
+  sources: z.union([
+    z.array(z.string()),
+    z.string().transform(val => val.split(',').filter(s => s.trim() !== ''))
+  ]).optional(),
   q: z.string().optional(),
   from: z.string().optional(),
   to: z.string().optional(),
   sortBy: z.enum(["relevancy", "popularity", "publishedAt"]).optional(),
-  pageSize: z.number().min(1).max(100).optional(),
-  page: z.number().min(1).optional(),
+  pageSize: z.coerce.number().min(1).max(100).optional(),
+  page: z.coerce.number().min(1).optional(),
 });
 
 export const summarizeRequestSchema = z.object({
