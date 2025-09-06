@@ -16,7 +16,7 @@ interface NewsFilters {
   country?: string;
   category?: string;
   sources?: string[];
-  query?: string;
+  q?: string;
 }
 
 interface NewsHeaderProps {
@@ -63,22 +63,22 @@ export function NewsHeader({
   resultsCount = 0,
   onRefresh,
 }: NewsHeaderProps) {
-  const [searchQuery, setSearchQuery] = useState(filters.query || "");
+  const [searchQuery, setSearchQuery] = useState(filters.q || "");
 
   const { isListening, isSupported, startVoiceSearch, stopVoiceSearch, error } = useVoiceSearch({
     onSearch: (query) => {
       setSearchQuery(query);
-      onFiltersChange({ ...filters, query });
+      onFiltersChange({ ...filters, q: query });
     },
   });
 
   useEffect(() => {
-    setSearchQuery(filters.query || "");
-  }, [filters.query]);
+    setSearchQuery(filters.q || "");
+  }, [filters.q]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onFiltersChange({ ...filters, query: searchQuery });
+    onFiltersChange({ ...filters, q: searchQuery });
   };
 
   const handleCountryChange = (country: string) => {
@@ -103,16 +103,16 @@ export function NewsHeader({
     const category = CATEGORIES.find(c => c.value === filters.category);
     if (category) activeFilters.push({ key: 'category', label: category.label, value: filters.category });
   }
-  if (filters.query) {
-    activeFilters.push({ key: 'query', label: `"${filters.query}"`, value: filters.query });
+  if (filters.q) {
+    activeFilters.push({ key: 'q', label: `"${filters.q}"`, value: filters.q });
   }
 
   const removeFilter = (filterKey: string) => {
     const newFilters = { ...filters };
     if (filterKey === 'country') delete newFilters.country;
     if (filterKey === 'category') delete newFilters.category;
-    if (filterKey === 'query') {
-      delete newFilters.query;
+    if (filterKey === 'q') {
+      delete newFilters.q;
       setSearchQuery("");
     }
     onFiltersChange(newFilters);

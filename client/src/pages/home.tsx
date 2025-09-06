@@ -13,7 +13,7 @@ interface NewsFilters {
   country?: string;
   category?: string;
   sources?: string[];
-  query?: string;
+  q?: string;
   pageSize?: number;
   page?: number;
 }
@@ -77,7 +77,7 @@ export default function Home() {
   } = useQuery({
     queryKey: ['/api/news', effectiveFilters],
     queryFn: () => {
-      if (effectiveFilters.query) {
+      if (effectiveFilters.q) {
         return searchNews(effectiveFilters);
       }
       return fetchNews(effectiveFilters);
