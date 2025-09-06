@@ -208,6 +208,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate topic summary from search results
+  app.post("/api/topic-summary", async (req, res) => {
+    try {
+      if (!newsService || !geminiService) {
+        return res.status(500).json({ 
+          message: "Services not available. Please check API keys." 
+        });
+      }
+
+      const { topic } = req.body;
+      if (!topic) {
+        return res.status(400).json({ message: "Topic is required" });
+      }
+
+      // Search for articles about the topic
+      const searchFilters = { 
+        q: topic, 
+        sortBy: "publishedAt" as const,
+        pageSize: 10 // Get more articles for better analysis
+      };
+      
+      const newsResponse = await newsService.searchEverything(searchFilters);
+      
+      if (!newsResponse.articles || newsResponse.articles.length === 0) {
+        return res.status(404).json({ 
+          message: `No recent articles found about "${topic}"` 
+        });
+      }
+
+      // Generate topic summary with source links
+      const topicSummary = await geminiService.generateTopicSummary(
+        topic,
+        newsResponse.articles
+      );
+      
+      res.json({
+        topic,
+        totalArticles: newsResponse.totalResults,
+        articlesAnalyzed: newsResponse.articles.length,
+        summary: topicSummary.summary,
+        sourceLinks: topicSummary.sourceLinks,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error generating topic summary:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to generate topic summary" 
+      });
+    }
+  });
+
   // Create or update user preferences
   app.post("/api/preferences", async (req, res) => {
     try {

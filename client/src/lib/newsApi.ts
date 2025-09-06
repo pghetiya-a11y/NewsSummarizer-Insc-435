@@ -98,3 +98,22 @@ export async function summarizeArticle(
   
   return response.json();
 }
+
+export async function generateTopicSummary(
+  topic: string
+): Promise<{
+  topic: string;
+  totalArticles: number;
+  articlesAnalyzed: number;
+  summary: string;
+  sourceLinks: Array<{title: string; url: string; source: string}>;
+  lastUpdated: string;
+}> {
+  const response = await apiRequest(
+    'POST',
+    '/api/topic-summary',
+    { topic }
+  );
+  
+  return response.json();
+}

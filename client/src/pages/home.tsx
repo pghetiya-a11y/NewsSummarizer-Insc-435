@@ -4,6 +4,7 @@ import { AlertTriangle, RotateCcw } from "lucide-react";
 import { NewsHeader } from "@/components/news-header";
 import { ArticleCard } from "@/components/article-card";
 import { SettingsModal } from "@/components/settings-modal";
+import { TopicSummary } from "@/components/topic-summary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { fetchNews, searchNews } from "@/lib/newsApi";
@@ -185,6 +186,11 @@ export default function Home() {
       />
       
       <main className="container mx-auto px-4 py-6">
+        {/* Topic Summary - Show when there's a search query */}
+        {effectiveFilters.q && (
+          <TopicSummary topic={effectiveFilters.q} />
+        )}
+
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12" data-testid="loading-state">
