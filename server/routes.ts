@@ -2,17 +2,17 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { NewsService } from "./services/newsService";
-import { OpenAIService } from "./services/openaiService";
+import { GeminiService } from "./services/openaiService";
 import { newsFiltersSchema, summarizeRequestSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   let newsService: NewsService;
-  let openaiService: OpenAIService;
+  let geminiService: GeminiService;
 
   try {
     newsService = new NewsService();
-    openaiService = new OpenAIService();
+    geminiService = new GeminiService();
   } catch (error) {
     console.error("Failed to initialize services:", error);
   }
@@ -133,14 +133,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Summarize articles with AI
   app.post("/api/summarize", async (req, res) => {
     try {
-      if (!openaiService) {
+      if (!geminiService) {
         return res.status(500).json({ 
-          message: "OpenAI service not available. Please check OPENAI_API_KEY environment variable." 
+          message: "Gemini service not available. Please check GEMINI_API_KEY environment variable." 
         });
       }
 
       const request = summarizeRequestSchema.parse(req.body);
-      const summaries = await openaiService.summarizeArticles(request);
+      const summaries = await geminiService.summarizeArticles(request);
       
       res.json({ summaries });
     } catch (error) {
@@ -154,9 +154,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Summarize single article
   app.post("/api/summarize-article/:id", async (req, res) => {
     try {
-      if (!openaiService) {
+      if (!geminiService) {
         return res.status(500).json({ 
-          message: "OpenAI service not available. Please check OPENAI_API_KEY environment variable." 
+          message: "Gemini service not available. Please check GEMINI_API_KEY environment variable." 
         });
       }
 
@@ -171,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Article not found" });
       }
 
-      const summary = await openaiService.summarizeArticle(
+      const summary = await geminiService.summarizeArticle(
         article.title,
         article.content || article.description || "",
         summaryLength
